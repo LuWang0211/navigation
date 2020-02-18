@@ -60,4 +60,4 @@ class Panel2:
 
             rowId += 1
 
-        pass
+        self.dc.calculateRoutePlan()
