@@ -2,6 +2,13 @@ import os.path
 import csv
 from copy import copy 
 
+def sort_paths(path_list):
+    path_list = [ { "len": len(e["path"]), "data": e} for e in path_list]
+
+    path_list = sorted(path_list, key=lambda e: e["len"])
+
+    return [e["data"] for e in path_list]
+
 class Item:
     def __init__(self, name, aisle, bin_):
         self.name = name
@@ -130,13 +137,58 @@ class DataContainer:
 
     def calculateRoutePlan(self):
         items = self.shopping_list
-
-        start = 'A'
-
-        item = items[0]
-        step = self.bin_anchor_metadata[item.aisle][item.bin]
-
-        path = self.market_map.find_shortest_path(start, step)
-
-        print(start, step, path)
         
+        anchors_to_go_by_aisle = self.divide_and_sort_shopping_items()
+
+        print(anchors_to_go_by_aisle)
+
+        current_position = 'A'
+
+        route = []
+
+        # Go to aisles one by one
+        while len(anchors_to_go_by_aisle) > 0:
+            aisle_anchors = anchors_to_go_by_aisle.pop(0)
+
+            # Go to anchor one by one
+            while len(aisle_anchors) > 0:
+                paths = [{ 
+                    "anchor": anchor, 
+                    "path": self.market_map.find_shortest_path(current_position, anchor)
+                } for anchor in aisle_anchors]
+
+                paths = sort_paths(paths)
+
+                # pick the shortest anchor, which is the first element in the list
+                node = paths.pop(0)
+                route = route + node['path']                
+                current_position = node['anchor']
+
+                # remove the anchor for the aisle, so we will visit other anchors next
+                aisle_anchors.remove(node['anchor'])
+
+                
+        route.append(current_position)
+        return route
+
+    def divide_and_sort_shopping_items(self):
+        items = self.shopping_list
+        
+        # divide items by aisles
+        aisles = {}
+        for item in items:
+            if item.aisle not in aisles:
+                aisles[item.aisle] = set()
+            anchor = self.bin_anchor_metadata[item.aisle][item.bin]
+            aisles[item.aisle].add(anchor)
+        
+        aisles = [ {
+            "aisle": aisle,
+            "anchors": list(item)
+        } for aisle,item in  aisles.items()]
+
+        aisles = sorted(aisles, key=lambda entry: int(entry["aisle"]))
+
+        aisles = [entry['anchors'] for entry in aisles]
+
+        return aisles
