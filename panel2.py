@@ -27,8 +27,8 @@ class Panel2:
         header = self.tableWidget.horizontalHeader()
            
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.Stretch)
-        header.setSectionResizeMode(2, QHeaderView.Fixed)
+        header.setSectionResizeMode(1, QHeaderView.Fixed)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
         header.resizeSection(2, 80)
         header.setSectionResizeMode(3, QHeaderView.Fixed)
         header.resizeSection(3, 80)
@@ -48,12 +48,14 @@ class Panel2:
         for item in shoppingItems: 
             rowNumberWidgetItem = QTableWidgetItem(str(rowId + 1))
             nameWidgetItem = QTableWidgetItem(item.name)
+            nameWidgetItem.setTextAlignment(0x84)
             aisleWidgetItem = QTableWidgetItem(f"Aisle {item.aisle}")
+            aisleWidgetItem.setTextAlignment(0x84)
             statusWidgetItem = QTableWidgetItem("pending")
 
-            self.tableWidget.setItem(rowId, 0, rowNumberWidgetItem)
-            self.tableWidget.setItem(rowId, 1, nameWidgetItem)
-            self.tableWidget.setItem(rowId, 2, aisleWidgetItem)
+            self.tableWidget.setItem(rowId, 0, rowNumberWidgetItem)            
+            self.tableWidget.setItem(rowId, 1, aisleWidgetItem)
+            self.tableWidget.setItem(rowId, 2, nameWidgetItem)
             self.tableWidget.setItem(rowId, 3, statusWidgetItem)
 
             rowId += 1
