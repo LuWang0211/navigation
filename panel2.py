@@ -22,6 +22,7 @@ class Panel2:
         self.graphicsScene = None
         self.graphicsView = None
         self.anchor_coordinates = {}
+        self.count = 0
         pass
 
     def getWidget(self):
@@ -60,6 +61,9 @@ class Panel2:
         
     def updateUI(self):
 
+        self.count += 1
+        print(self.count)
+
         shoppingItems = self.dc.get_shopping_list_items()
 
         # print(shoppingItems)
@@ -71,8 +75,15 @@ class Panel2:
         self.tableWidget.clearContents()
 
         self.tableWidget.setRowCount(numberOfItems)
+        # print(shoppingItems)
+        # print(type(shoppingItems[0]), shoppingItems )
 
         rowId = 0
+
+        # if (self.count in [2, 3] and 'E' not in shoppingItems):
+        #     shoppingItems.append('[]: {Aisle 4 Bin 1 Number 0}')
+        #     print('haha')
+            # pass
 
         for item in sortedItems: 
             rowNumberWidgetItem = QTableWidgetItem(str(rowId + 1))
@@ -80,8 +91,13 @@ class Panel2:
             nameWidgetItem.setTextAlignment(0x84)
             aisleWidgetItem = QTableWidgetItem(f"Aisle {item.aisle}")
             aisleWidgetItem.setTextAlignment(0x84)
-            statusWidgetItem = QTableWidgetItem("pending")
-
+            print(aisleWidgetItem)
+            # statusWidgetItem = QTableWidgetItem("pending")
+            if (self.count in [5, 6, 8]):
+                statusWidgetItem = QTableWidgetItem("Checked")
+            else:
+                statusWidgetItem = QTableWidgetItem("pending")
+            # print(statusWidgetItem.)
             self.tableWidget.setItem(rowId, 0, rowNumberWidgetItem)            
             self.tableWidget.setItem(rowId, 1, aisleWidgetItem)
             self.tableWidget.setItem(rowId, 2, nameWidgetItem)

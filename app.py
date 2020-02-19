@@ -23,6 +23,7 @@ class RootUI:
         self.currentPanel = None
         self.placeHolder = None
         self.dc = dataContainer
+        self.count = 0
         
         pass
 
@@ -44,10 +45,11 @@ class RootUI:
 
         self.prevButton.clicked.connect(self.changeState)
         self.nextButton.clicked.connect(self.changeState)
-        
         self.updateUI()
 
     def updateUI(self):
+        self.count  += 1
+        # print(self.count )
         layout = self.placeholder.layout()
 
         if layout.count() > 0:
@@ -70,6 +72,8 @@ class RootUI:
     def changeState(self):
         self.state = 1 - self.state
         self.updateUI()
+
+
 
 dataContainer = DataContainer()
 dataContainer.setup()
