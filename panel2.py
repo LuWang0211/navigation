@@ -51,7 +51,7 @@ class Panel2:
         
         # Setup QGraphicsScene
         self.graphicsView = window.findChild(QGraphicsView, "graphicsView")
-        self.graphicsScene = QGraphicsScene(0, 0, 815, 340)
+        self.graphicsScene = QGraphicsScene(0, 0, 815, 236)
         self.graphicsView.setScene(self.graphicsScene)
         self.graphicsView.setStyleSheet("background: transparent")
 
