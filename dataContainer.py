@@ -43,6 +43,7 @@ class MarketMap:
                     self.anchors.add(neighbour)
 
     def find_shortest_path(self, source, dest):
+        "graph search using breath first search"
         visited = set(source)
         node = {
             "anchor": source,
@@ -135,9 +136,7 @@ class DataContainer:
     def get_shopping_list_items(self):
         return self.shopping_list
 
-    def calculateRoutePlan(self):
-        items = self.shopping_list
-        
+    def calculateRoutePlan(self):     
         anchors_to_go_by_aisle = self.divide_and_sort_shopping_items()
 
         # print(anchors_to_go_by_aisle)
@@ -184,8 +183,8 @@ class DataContainer:
         
         aisles = [ {
             "aisle": aisle,
-            "anchors": list(item)
-        } for aisle,item in  aisles.items()]
+            "anchors": list(anchors)
+        } for aisle,anchors in  aisles.items()]
 
         aisles = sorted(aisles, key=lambda entry: int(entry["aisle"]))
 
