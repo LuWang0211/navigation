@@ -62,7 +62,11 @@ class Panel2:
 
         shoppingItems = self.dc.get_shopping_list_items()
 
+        # print(shoppingItems)
+
         numberOfItems = len(shoppingItems)
+
+        sortedItems = sorted(shoppingItems, key=lambda item: int(item.aisle))
 
         self.tableWidget.clearContents()
 
@@ -70,7 +74,7 @@ class Panel2:
 
         rowId = 0
 
-        for item in shoppingItems: 
+        for item in sortedItems: 
             rowNumberWidgetItem = QTableWidgetItem(str(rowId + 1))
             nameWidgetItem = QTableWidgetItem(item.name)
             nameWidgetItem.setTextAlignment(0x84)
