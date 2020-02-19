@@ -140,7 +140,7 @@ class DataContainer:
         
         anchors_to_go_by_aisle = self.divide_and_sort_shopping_items()
 
-        print(anchors_to_go_by_aisle)
+        # print(anchors_to_go_by_aisle)
 
         current_position = 'A'
 
