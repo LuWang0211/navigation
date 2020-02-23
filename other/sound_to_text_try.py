@@ -18,7 +18,7 @@ class VoiceWorker(QtCore.QObject):
                 try:
                     value = r.recognize_google(audio)
                     self.textChanged.emit(value)
-                    print("You said: {}".format(text))
+                    print("You said: {}".format(value))
                 except sr.UnknownValueError:
                     print("Oops")
 
@@ -53,13 +53,13 @@ def Gui():
 
 
     start_button = QtWidgets.QPushButton("Start")
-    close_button = QtWidgets.QPushButton("Close")
+    # close_button = QtWidgets.QPushButton("Close")
 
 
     v_box = QtWidgets.QVBoxLayout()
     v_box.addStretch()
     v_box.addWidget(start_button)
-    v_box.addWidget(close_button)
+    # v_box.addWidget(close_button)
     window.setLayout(v_box)
 
     start_button.clicked.connect(worker.task)
