@@ -20,6 +20,23 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QComboBox" name="comboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>5</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="reduceButton">
+     <property name="text">
+      <string>Reduce</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="addButton">
      <property name="enabled">
@@ -36,20 +53,10 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="reduceButton">
+   <item row="2" column="0">
+    <widget class="QPushButton" name="voiceButton">
      <property name="text">
-      <string>Reduce</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="comboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>5</horstretch>
-       <verstretch>1</verstretch>
-      </sizepolicy>
+      <string>Voice Input</string>
      </property>
     </widget>
    </item>
@@ -63,20 +70,10 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="voiceButton">
-     <property name="text">
-      <string>Voice Input</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
-    <widget class="QPushButton" name="stopButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+    <widget class="QLabel" name="voicelabel">
      <property name="text">
-      <string>Voice Stop</string>
+      <string>show voice text when you press voice input</string>
      </property>
     </widget>
    </item>

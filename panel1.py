@@ -1,7 +1,7 @@
 import os.path
 import csv
 from PyQt5 import uic, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QPushButton, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QPushButton, QListWidget, QListWidgetItem, QLabel
 import speech_recognition as sr
 
 Form, Base = uic.loadUiType("panel1.ui")
@@ -41,7 +41,10 @@ class Panel1:
         self.voiceButton = self.widget.findChild(QPushButton, "voiceButton")
         self.voiceButton.clicked.connect(self.voiceButtonClicked)
 
+        self.voicelabel = self.widget.findChild(QLabel, "voicelabel")
+
         self.shoppingListWidget = self.widget.findChild(QListWidget, "shoppingItems")
+
 
 
     def updateUI(self):
@@ -92,13 +95,14 @@ class Panel1:
         r = sr.Recognizer()
         m = sr.Microphone()
 
-        print(list(self.item_metadata.keys()))
-        if 'eggs'.capitalize() in self.item_metadata.keys():
-            print('yes')
+        # print(list(self.item_metadata.keys()))
+        # if 'eggs'.capitalize() in self.item_metadata.keys():
+        #     print('yes')
         # if 'Eggs' in self.item_metadata.keys():
         #     print('haha')
 
         # while True:
+
         print("Say somethig!")
         with m as source:
             audio = r.listen(source)
@@ -108,12 +112,15 @@ class Panel1:
                 # self.textChanged.emit(value)
                 print("You said: {}".format(value))
                 if value.capitalize() in self.item_metadata.keys():
+                    self.voicelabel.setText("You said: {}. I have added it to your shopping list".format(value))
                     index = list(self.item_metadata.keys()).index(value.capitalize())
                     item_to_add = self.ordered_item_metadata[index]
                     # print(item_to_add)
                     self.dc.add_to_shopping_list(item_to_add)
                     self.updateShoppingListUI()
                 else:
+                    self.voicelabel.setText("You said: {}. Sorry, we do not have this item".format(value))
                     print('Sorry, we do not have this item')
             except sr.UnknownValueError:
+                self.voicelabel.setText("Oops, I do not understand")
                 print("Oops, I do not understand")
