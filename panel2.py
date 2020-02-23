@@ -4,7 +4,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPen
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QHeaderView, \
-     QGraphicsView, QGraphicsScene
+     QGraphicsView, QGraphicsScene, QLabel
 
 Form, Window = uic.loadUiType("panel2.ui")
 
@@ -16,12 +16,17 @@ form.setupUi(window)
 panel2 = window.findChild(QWidget, "panel2")
 
 class Panel2:
-    def __init__(self, dataContainer):
+    def __init__(self, dataContainer, camera, locationService):
         self.widget = panel2
         self.dc = dataContainer
+        self.camera = camera
+        self.locationService = locationService
         self.graphicsScene = None
         self.graphicsView = None
+        self.shoppingCart = None
+        self.shoppingCartLocation = None
         self.anchor_coordinates = {}
+        self.aisle_anchor_map = {}
         pass
 
     def getWidget(self):
@@ -36,6 +41,14 @@ class Panel2:
                 x = int(row[1])
                 y = int(row[2])
                 self.anchor_coordinates[anchor] = [x, y]
+
+        with open(os.path.join(os.path.dirname(__file__), 'aisle_anchor.csv'), newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                aisle = int(row[0])
+                anchor = row[1]                
+                self.aisle_anchor_map[aisle] = anchor
+
         
         # Setup QTableWidget
         self.tableWidget = window.findChild(QTableWidget, "shoppingList")
@@ -48,6 +61,10 @@ class Panel2:
         header.resizeSection(2, 80)
         header.setSectionResizeMode(3, QHeaderView.Fixed)
         header.resizeSection(3, 80)
+
+        # Get shopping cart element
+    
+        self.shoppingCart = window.findChild(QLabel, "cart")
         
         # Setup QGraphicsScene
         self.graphicsView = window.findChild(QGraphicsView, "graphicsView")
@@ -57,9 +74,12 @@ class Panel2:
 
         # Bring to front
         self.graphicsView.raise_()
+
+        self.shoppingCartLocation = 'A'
         
     def updateUI(self):
 
+        # display shopping route
         shoppingItems = self.dc.get_shopping_list_items()
 
         # print(shoppingItems)
@@ -111,3 +131,25 @@ class Panel2:
                 [x2, y2] = self.anchor_coordinates[next_]
                 self.graphicsScene.addLine( x1, y1, x2, y2, pen)
                 start = next_
+
+        # display cart location
+        self.update_cart_location()
+
+    def update_cart_location(self):
+        if self.shoppingCartLocation not in self.anchor_coordinates:
+            return
+
+        [x, y] = self.anchor_coordinates[self.shoppingCartLocation]
+
+        current_geometry = self.shoppingCart.geometry()
+
+        y = current_geometry.y()
+
+        self.shoppingCart.move(x - current_geometry.width() / 2, y)
+
+    def onLocationChanged(self, new_location):
+        print(f'panel2 location changed to: {new_location}')
+
+        if new_location in self.aisle_anchor_map:
+            self.shoppingCartLocation = self.aisle_anchor_map[new_location]
+            self.update_cart_location()
