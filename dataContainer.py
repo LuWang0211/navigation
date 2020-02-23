@@ -133,6 +133,17 @@ class DataContainer:
 
         self.shopping_list.append(temp_item)
 
+    def reduce_to_shopping_list(self, item):
+        """ if the list already contains the item, decrease its count instead. if only its count is one, delete it"""        
+        existing = list(filter(lambda e: e.name == item.name, self.shopping_list))
+
+        if len(existing) > 0:
+            temp_item = existing[0]
+            temp_item.count = temp_item.count - 1
+            if temp_item.count == 0:
+                self.shopping_list.remove(temp_item)
+            return
+
     def get_shopping_list_items(self):
         return self.shopping_list
 

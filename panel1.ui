@@ -21,21 +21,14 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
-    <widget class="QComboBox" name="comboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>3</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
     <widget class="QPushButton" name="addButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
        <horstretch>2</horstretch>
-       <verstretch>0</verstretch>
+       <verstretch>1</verstretch>
       </sizepolicy>
      </property>
      <property name="text">
@@ -43,13 +36,44 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="reduceButton">
+     <property name="text">
+      <string>Reduce</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
+    <widget class="QComboBox" name="comboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>5</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
     <widget class="QListWidget" name="shoppingItems">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="voiceButton">
+     <property name="text">
+      <string>Voice Input</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="stopButton">
+     <property name="text">
+      <string>Voice Stop</string>
      </property>
     </widget>
    </item>
