@@ -92,6 +92,12 @@ class Panel1:
         r = sr.Recognizer()
         m = sr.Microphone()
 
+        print(list(self.item_metadata.keys()))
+        if 'eggs'.capitalize() in self.item_metadata.keys():
+            print('yes')
+        # if 'Eggs' in self.item_metadata.keys():
+        #     print('haha')
+
         # while True:
         print("Say somethig!")
         with m as source:
@@ -101,11 +107,13 @@ class Panel1:
                 value = r.recognize_google(audio)
                 # self.textChanged.emit(value)
                 print("You said: {}".format(value))
-                if self.current_selected_item_to_add is None:
-                    return
-                # need to modify
-                item_to_add = self.ordered_item_metadata[self.current_selected_item_to_add]
-                self.dc.add_to_shopping_list(item_to_add)
-                self.updateShoppingListUI()
+                if value.capitalize() in self.item_metadata.keys():
+                    index = list(self.item_metadata.keys()).index(value.capitalize())
+                    item_to_add = self.ordered_item_metadata[index]
+                    # print(item_to_add)
+                    self.dc.add_to_shopping_list(item_to_add)
+                    self.updateShoppingListUI()
+                else:
+                    print('Sorry, we do not have this item')
             except sr.UnknownValueError:
-                print("Oops")
+                print("Oops, I do not understand")

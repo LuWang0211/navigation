@@ -72,6 +72,9 @@
    </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="stopButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Voice Stop</string>
      </property>
