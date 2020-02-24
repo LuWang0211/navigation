@@ -3,6 +3,8 @@ import csv
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTableWidget, QTableWidgetItem, QHeaderView
 
+from camera import Camera
+from location_service import LocationService
 from panel1 import Panel1
 from panel2 import Panel2
 from dataContainer import DataContainer
@@ -74,12 +76,18 @@ class RootUI:
         self.updateUI()
 
 
+camera = Camera()
+
+locationService = LocationService(camera)
 
 dataContainer = DataContainer()
 dataContainer.setup()
 
 panel1 = Panel1(dataContainer)
-panel2 = Panel2(dataContainer)
+panel2 = Panel2(dataContainer, camera, locationService)
+
+camera.setup(panel2, locationService)
+locationService.setup(panel2)
 
 rootUI = RootUI(window, panel1, panel2, dataContainer)
 rootUI.setup()
