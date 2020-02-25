@@ -75,17 +75,15 @@ class RootUI:
         self.state = 1 - self.state
         self.updateUI()
 
-
-camera = Camera()
-
-locationService = LocationService(camera)
-
 dataContainer = DataContainer()
-dataContainer.setup()
+
+camera = Camera(dataContainer)
+locationService = LocationService(camera)
 
 panel1 = Panel1(dataContainer)
 panel2 = Panel2(dataContainer, camera, locationService)
 
+dataContainer.setup(panel2)
 camera.setup(panel2, locationService)
 locationService.setup(panel2)
 

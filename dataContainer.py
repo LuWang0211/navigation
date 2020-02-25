@@ -80,8 +80,11 @@ class DataContainer:
         self.item_metadata = {}
         self.bin_anchor_metadata = {}
         self.market_map = MarketMap()
+        self.last_captured_image = None
+        self.panel2 = None
 
-    def setup(self):
+    def setup(self, panel2):
+        self.panel2 = panel2
 
         item_metadata = {}
         number_of_types_of_items = 0
@@ -119,6 +122,9 @@ class DataContainer:
     def get_item_metadata(self):
         return self.item_metadata
 
+    def get_last_captured_image(self):
+        return self.last_captured_image
+
     def add_to_shopping_list(self, item):
         """ Add an item into the shopping list, if the list already contains the item, increase its count instead"""        
         existing = list(filter(lambda e: e.name == item.name, self.shopping_list))
@@ -134,7 +140,7 @@ class DataContainer:
         self.shopping_list.append(temp_item)
 
     def reduce_to_shopping_list(self, item):
-        """ if the list already contains the item, decrease its count instead. if only its count is one, delete it"""        
+        """ if the list already contains the item, decrease its count instead. if its count is only one, delete it"""        
         existing = list(filter(lambda e: e.name == item.name, self.shopping_list))
 
         if len(existing) > 0:
@@ -202,3 +208,9 @@ class DataContainer:
         aisles = [entry['anchors'] for entry in aisles]
 
         return aisles
+
+    def onImageCaptured(self, image_nparray):
+        self.last_captured_image = image_nparray
+
+        if self.panel2 is not None:
+            self.panel2.onImageCaptured()
