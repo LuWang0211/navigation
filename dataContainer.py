@@ -15,6 +15,7 @@ class Item:
         self.aisle = aisle
         self.bin = bin_
         self.number = 0
+        self.checked = False
     
     def __repr__(self):
         return f"[{self.name}]: Aisle {self.aisle} Bin {self.bin} Number {self.number}"
@@ -93,7 +94,7 @@ class DataContainer:
         with open(os.path.join(os.path.dirname(__file__), 'bin_anchor.csv'), newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
-                aisle = row[0]
+                aisle = int(row[0])
                 bin = row[1]
                 anchor = row[2]
 
@@ -109,7 +110,7 @@ class DataContainer:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 name = row[0]
-                aisle = row[1]
+                aisle = int(row[1])
                 bin_ = row[2]
 
                 item_metadata[name] = Item(name, aisle, bin_)
@@ -214,3 +215,9 @@ class DataContainer:
 
         if self.panel2 is not None:
             self.panel2.onImageCaptured()
+
+    def check_item(self, item):
+        pass
+    
+    def uncheck_item(self, item):
+        pass

@@ -64,11 +64,15 @@ class RootUI:
             self.prevButton.setEnabled(False)
             self.nextButton.setEnabled(True)
             layout.addWidget(self.panel1.getWidget())
+            self.panel2.activated = False
+            self.panel1.activated = True
             self.panel1.updateUI()
         else:
             self.prevButton.setEnabled(True)
             self.nextButton.setEnabled(False)
             layout.addWidget(self.panel2.getWidget())
+            self.panel1.activated = False
+            self.panel2.activated = True
             self.panel2.updateUI()
 
     def changeState(self):

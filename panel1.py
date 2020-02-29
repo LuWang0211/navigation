@@ -15,6 +15,7 @@ panel1 = base
 
 class Panel1:
     def __init__(self, dataContainer):
+        self.activated = False
         self.widget = panel1
         self.dc = dataContainer
         self.item_metadata = {}
