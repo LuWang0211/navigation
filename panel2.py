@@ -67,7 +67,7 @@ class CustomTableItemPainter(QStyledItemDelegate):
             )
 
             opts = QStyleOptionButton()
-            spacing = 3
+            spacing = 1
             shrinked_rect = QRect(x + spacing, y + spacing, w - spacing - spacing, h - spacing - spacing)
             opts.rect = shrinked_rect
             opts.state = QStyle.State_Active | QStyle.State_Enabled
