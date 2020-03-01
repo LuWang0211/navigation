@@ -153,6 +153,9 @@ class DataContainer:
 
     def get_shopping_list_items(self):
         return self.shopping_list
+    
+    def get_sorted_shopping_list_items(self):
+        return sorted(self.shopping_list, key=lambda item: int(item.aisle))
 
     def calculateRoutePlan(self):     
         anchors_to_go_by_aisle = self.divide_and_sort_shopping_items()
@@ -217,7 +220,14 @@ class DataContainer:
             self.panel2.onImageCaptured()
 
     def check_item(self, item):
-        pass
+        existing = list(filter(lambda e: e.name == item.name, self.shopping_list))
+
+        if len(existing) > 0:
+            existing_item = existing[0]
+            existing_item.checked = True
     
     def uncheck_item(self, item):
-        pass
+        existing = list(filter(lambda e: e.name == item.name, self.shopping_list))
+        if len(existing) > 0:
+            existing_item = existing[0]
+            existing_item.checked = False

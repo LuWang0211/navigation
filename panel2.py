@@ -2,10 +2,11 @@ import os.path
 import csv
 import numpy as np
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QSize, QPointF 
+from PyQt5.QtCore import Qt, QSize, QPointF, QRect
 from PyQt5.QtGui import QPen, QBrush, QImage, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QHeaderView, \
-     QGraphicsView, QGraphicsScene, QLabel, QGraphicsItem, QGraphicsPixmapItem, QStyledItemDelegate 
+     QGraphicsView, QGraphicsScene, QLabel, QGraphicsItem, QGraphicsPixmapItem, QStyledItemDelegate, \
+     QPushButton, QGraphicsColorizeEffect, QStyle, QStyleOptionButton
 
 Form, Window = uic.loadUiType("panel2.ui")
 
@@ -17,6 +18,7 @@ form.setupUi(window)
 panel2 = window.findChild(QWidget, "panel2")
 
 Table_Widget_Activation_RoleId = 1000
+Table_Widget_CheckState_RoleId = 1001
 
 class CustomTableItemPainter(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -24,43 +26,64 @@ class CustomTableItemPainter(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         should_be_activated = index.data(Table_Widget_Activation_RoleId)
-        # print('Table_Widget_Activation_RoleId', should_be_activated)
+        is_checked = index.data(Table_Widget_CheckState_RoleId)
 
-        if should_be_activated == True:
-            original_pen = painter.pen()
+        if should_be_activated == True and not is_checked:
+            self.paint_activated_item(painter, option, index)
+        else:
+            QStyledItemDelegate.paint(self, painter, option, index)
 
-            pen_width = 10
-            hw = pen_width / 2
-            painter.setPen(QPen(QBrush(QColor('#7fffd4')), pen_width))
-            rect = option.rect
-            x, y, w, h = (rect.x(), rect.y(), rect.width(), rect.height())
-            column = index.column()
+    def paint_activated_item(self, painter, option, index):
+        original_pen = painter.pen()
 
-            if column == 0:
-                painter.drawPolyline(
-                    QPointF(x + w - hw, y + h - hw), 
-                    QPointF(x, y + h - hw),
-                    QPointF(x, y + hw), 
-                    QPointF(x + w - hw, y + hw)
-                )
-            elif column == 1 or column == 2:
-                painter.drawLines(
-                    QPointF(x + hw, y + hw), 
-                    QPointF(x + w - hw, y + hw),
-                    QPointF(x + hw, y + h - hw), 
-                    QPointF(x + w - hw, y + h - hw)
-                ) 
-            elif column == 3:
-                painter.drawPolyline(
-                    QPointF(x + hw, y + hw), 
-                    QPointF(x + w, y + hw),
-                    QPointF(x + w, y + h - hw),
-                    QPointF(x + hw, y + h - hw)
-                )
-            
-            painter.setPen(original_pen)
+        pen_width = 10
+        hw = pen_width / 2
+        color = QColor('#7fffd4')
+        painter.setPen(QPen(QBrush(color), pen_width))
+        rect = option.rect
+        x, y, w, h = (rect.x(), rect.y(), rect.width(), rect.height())
+        column = index.column()
 
-        QStyledItemDelegate.paint(self, painter, option, index)
+        if column == 0:
+            painter.drawPolyline(
+                QPointF(x + w - hw, y + h - hw), 
+                QPointF(x, y + h - hw),
+                QPointF(x, y + hw), 
+                QPointF(x + w - hw, y + hw)
+            )
+        elif column == 1 or column == 2:
+            painter.drawLines(
+                QPointF(x + hw, y + hw), 
+                QPointF(x + w - hw, y + hw),
+                QPointF(x + hw, y + h - hw), 
+                QPointF(x + w - hw, y + h - hw)
+            ) 
+        elif column == 3:
+            painter.drawPolyline(
+                QPointF(x + hw, y + hw), 
+                QPointF(x + w, y + hw),
+                QPointF(x + w, y + h - hw),
+                QPointF(x + hw, y + h - hw)
+            )
+
+            opts = QStyleOptionButton()
+            spacing = 3
+            shrinked_rect = QRect(x + spacing, y + spacing, w - spacing - spacing, h - spacing - spacing)
+            opts.rect = shrinked_rect
+            opts.state = QStyle.State_Active | QStyle.State_Enabled
+
+            QApplication.style().drawControl(QStyle.CE_PushButton, opts, painter)
+
+            overlayColor = QColor(color.red(), color.green(), color.blue(), 125)
+            painter.fillRect(shrinked_rect, overlayColor)
+
+            painter.setPen(QPen(QBrush(Qt.black), 3))
+            painter.drawText(shrinked_rect, Qt.AlignCenter, 'Check!')
+        
+        painter.setPen(original_pen)
+
+        if column in (0, 1, 2):
+            QStyledItemDelegate.paint(self, painter, option, index)
 
 class Panel2:
     def __init__(self, dataContainer, camera, locationService):
@@ -113,6 +136,7 @@ class Panel2:
         header.resizeSection(3, 80)
 
         self.tableWidget.setItemDelegate(CustomTableItemPainter())
+        self.tableWidget.cellClicked.connect(self.tableWidgetItem_click)
 
         # Get shopping cart element
     
@@ -172,13 +196,11 @@ class Panel2:
         if not self.activated:
             return
 
-        shoppingItems = self.dc.get_shopping_list_items()
+        sortedItems = self.dc.get_sorted_shopping_list_items()
 
-        # print(shoppingItems)
+        # print(sortedItems)
 
-        numberOfItems = len(shoppingItems)
-
-        sortedItems = sorted(shoppingItems, key=lambda item: int(item.aisle))
+        numberOfItems = len(sortedItems)
 
         self.tableWidget.clearContents()
 
@@ -203,16 +225,47 @@ class Panel2:
             # else:
             #     statusWidgetItem = QTableWidgetItem("pending")
 
+            widgetItem_group = [rowNumberWidgetItem, aisleWidgetItem, nameWidgetItem, statusWidgetItem]
+
+            # Associate data of activation state
             if self.shopping_cart_location_aisle == item.aisle:
-                print(f'aisle matches {self.shopping_cart_location_aisle}')
-                for widgetItem in [rowNumberWidgetItem, aisleWidgetItem, nameWidgetItem, statusWidgetItem]:
+                #print(f'aisle matches {self.shopping_cart_location_aisle}')
+                for widgetItem in widgetItem_group:
                     widgetItem.setData(Table_Widget_Activation_RoleId, True)
+
+            # Associate data of checked state
+            for widgetItem in widgetItem_group:
+                    widgetItem.setData(Table_Widget_CheckState_RoleId, item.checked)
+            
             self.tableWidget.setItem(rowId, 0, rowNumberWidgetItem)            
             self.tableWidget.setItem(rowId, 1, aisleWidgetItem)
             self.tableWidget.setItem(rowId, 2, nameWidgetItem)
             self.tableWidget.setItem(rowId, 3, statusWidgetItem)
 
             rowId += 1
+    
+    def tableWidgetItem_click(self, row, column):
+        # print(f'item clicked {row} {column}')
+
+        if column != 3:
+            return
+        
+        sortedItems = self.dc.get_sorted_shopping_list_items()
+
+        item = sortedItems[row]
+
+        if item.checked:
+            return
+        
+        activated = self.shopping_cart_location_aisle == item.aisle
+
+        if not activated:
+            return
+
+        self.dc.check_item(item)
+
+        self.update_shopping_list_table()
+
 
     def update_cart_location(self):
         if not self.activated:
