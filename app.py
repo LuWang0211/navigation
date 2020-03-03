@@ -2,8 +2,10 @@ import os.path
 import csv
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTableWidget, QTableWidgetItem, QHeaderView
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QImage
 
-from camera import Camera
+from camera import Camera, CameraCaptureThread
 from location_service import LocationService
 from panel1 import Panel1
 from panel2 import Panel2
@@ -12,8 +14,29 @@ from dataContainer import DataContainer
 Form, Window = uic.loadUiType("all.ui")
 
 app = QApplication([])
-window = Window()
 form = Form()
+
+
+class ThreadWindow(Window):
+    def __init__(self):
+        super().__init__()
+
+    def setup(self, dc):
+        self.dc = dc
+        self.startVideo()
+
+    @pyqtSlot(QImage)
+    def setImage(self, image):
+        self.dc.onImageCaptured(image)
+
+    def startVideo(self):
+        # th = Thread(self)
+        th = CameraCaptureThread(self)
+        th.changePixmap.connect(self.setImage)
+        th.start()
+
+window = ThreadWindow()
+
 form.setupUi(window)
 
 class RootUI:
@@ -93,6 +116,8 @@ locationService.setup(panel2)
 
 rootUI = RootUI(window, panel1, panel2, dataContainer)
 rootUI.setup()
+
+window.setup(dataContainer)
 
 window.show()
 app.exec_()
