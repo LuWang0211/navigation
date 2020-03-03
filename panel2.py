@@ -220,10 +220,6 @@ class Panel2:
                 statusWidgetItem = QTableWidgetItem("CHECKED!")
             else:
                 statusWidgetItem = QTableWidgetItem("pending")
-            # if (self.count in [5, 6, 8]):
-            #     statusWidgetItem = QTableWidgetItem("Checked")
-            # else:
-            #     statusWidgetItem = QTableWidgetItem("pending")
 
             widgetItem_group = [rowNumberWidgetItem, aisleWidgetItem, nameWidgetItem, statusWidgetItem]
 
@@ -288,27 +284,25 @@ class Panel2:
         if not self.activated:
             return
         
-        image_arrary = self.dc.get_last_captured_image()
+        qimage = self.dc.get_last_captured_image()
 
-        if image_arrary is None:
-            return
-        if self.cameraGraphicsViewScene is None:
-            return
-
-        qpixmap = self._convert_numpy_to_qpixmap(image_arrary) 
-
-        # Create a scene item and add it to scene
+        # # Create a scene item and add it to scene
         scene_width, scene_height = (self.cameraGraphicsViewScene.width(), self.cameraGraphicsViewScene.height())
+        # print('debug2', scene_width, scene_height, qpixmap)
 
-        # Scale the QPixmap, so it fits in the graphic scene
+        # # Scale the QPixmap, so it fits in the graphic scene
+        qpixmap = QPixmap.fromImage(qimage)
         qpixmap = qpixmap.scaled(QSize(scene_width, scene_height), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        # print('debug1')
 
         rect = qpixmap.rect()
         width, height = (rect.width(), rect.height())
 
         item = QGraphicsPixmapItem(qpixmap)
 
-        # Center the scene item horizotally and vertically
+
+        # # Center the scene item horizotally and vertically
         if scene_width > width:
             item.setX( (scene_width - width) // 2)
         if scene_height > height:
@@ -329,8 +323,8 @@ class Panel2:
         self.update_camera_image()
 
     def _convert_numpy_to_qpixmap(self, image_array):
-        #image_array = np.transpose(image_array, (0,1,2)).copy()
-        image_array = image_array.copy()
+        print('shape', image_array.shape)
+        image_array = np.transpose(image_array, (0,1,2)).copy()
         shape = image_array.shape
         qimage = QImage(image_array, shape[1], shape[0], QImage.Format_RGB32) 
 

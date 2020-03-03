@@ -3,9 +3,42 @@ import numpy as np
 from random import randrange, choice, seed
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage
+from imutils.video import VideoStream
+import cv2
+import time
+import argparse
+import imutils
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
+
+# # construct the argument parser and parse the arguments
+# ap = argparse.ArgumentParser()
+# ap.add_argument("-v", "--video", type=str,
+# 	help="path to optinal input video file")
+# args = vars(ap.parse_args())
 
 
 seed()
+
+class CameraCaptureThread(QThread):
+    changePixmap = pyqtSignal(QImage)
+
+    def run(self):
+        cap = cv2.VideoCapture(0)
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                # orig = frame.copy()
+
+                # https://stackoverflow.com/a/55468544/6622587
+                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = rgbImage.shape
+                bytesPerLine = ch * w
+                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+                # p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                self.changePixmap.emit(convertToQtFormat)
+
+                # cv2.imshow("Text Detection", orig)
+
 
 class Camera:
     def __init__(self, dataContainer):
@@ -15,16 +48,18 @@ class Camera:
 
         self.mock_images = []
 
+        self.vs = None
+
     def setup(self, panel2, locationService):
         self.panel2 = panel2
         self.locationService = locationService
 
         # Temporary mock logic
-        self.mockImageCapture()
         self.mockImageIdentification()
 
     def mockImageCapture(self):
         arr = self.mock_read_raw_image()
+        arr = self.startVideo()
 
         (height, width, _) = arr.shape 
 
@@ -41,10 +76,12 @@ class Camera:
         self.mock_images = images
 
         def interval():
-            self._onImageCaptured(choice(self.mock_images))
+            # self._onImageCaptured(choice(self.mock_images))
+            self._onImageCaptured(self.mock_images)
             QTimer.singleShot(2000, interval)
 
         interval()
+        pass
 
     def mock_read_raw_image(self):
         """ Read a mock image and convert it into narray """
@@ -70,6 +107,8 @@ class Camera:
         # need to convert the 3 dimention data type
         arr = np.apply_along_axis(convert_function, 1, arr)
         arr = arr.reshape((height, width, channels_count))
+        print(arr)
+        print(arr.shape)
 
         return arr
 
@@ -102,3 +141,34 @@ class Camera:
             return
 
         self.locationService.onImageIdentified(identified)
+
+    # def startVideo2(self):
+    #     # if a video path was not supplied, grab the reference to the web cam
+    #     if not args.get("video", False):
+    #         print("[INFO] starting video stream...")
+    #         self.vs = VideoStream(src=0).start()
+    #         time.sleep(1.0)
+
+    #     # otherwise, grab a reference to the video file
+    #     else:
+    #         self.vs = cv2.VideoCapture(args["video"])
+
+    #     def interval():
+
+    #         frame = self.vs.read()
+    #         # if ret:
+    #         frame = frame[1] if args.get("video", False) else frame
+    #         orig = frame.copy()
+
+    #         rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         h, w, ch = rgbImage.shape
+    #         bytesPerLine = ch * w
+    #         img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+
+    #         self._onImageCaptured(img)
+    #         cv2.imshow("Text Detection", orig)
+
+
+    #         QTimer.singleShot(100, interval)
+
+    #     interval()
