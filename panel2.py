@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetIte
      QGraphicsView, QGraphicsScene, QLabel, QGraphicsItem, QGraphicsPixmapItem, QStyledItemDelegate, \
      QPushButton, QGraphicsColorizeEffect, QStyle, QStyleOptionButton
 from table_item_painter import CustomTableItemPainter, Table_Widget_Activation_RoleId, Table_Widget_CheckState_RoleId
+from config import SHOULD_USE_CHECKBOX_STYLE_TABLE
 
 Form, Window = uic.loadUiType("panel2.ui")
 
@@ -66,13 +67,14 @@ class Panel2:
         header.setSectionResizeMode(2, QHeaderView.Stretch)
         header.resizeSection(2, 80)
         header.setSectionResizeMode(3, QHeaderView.Fixed)
-        header.resizeSection(3, 80)
+        header.resizeSection(3, SHOULD_USE_CHECKBOX_STYLE_TABLE and 120 or 80)
 
         self.tableWidget.setItemDelegate(CustomTableItemPainter())
+
         self.tableWidget.cellClicked.connect(self.tableWidgetItem_click)
 
+
         # Get shopping cart element
-    
         self.shoppingCartIcon = window.findChild(QLabel, "cart")
         
         # Setup QGraphicsScene
@@ -149,16 +151,29 @@ class Panel2:
             aisleWidgetItem.setTextAlignment(0x84)
             # print(aisleWidgetItem)
 
+            is_activated = self.shopping_cart_location_aisle == item.aisle
+
             if item.checked:
-                statusWidgetItem = QTableWidgetItem("CHECKED!")
+                statusWidgetItem = QTableWidgetItem("checked")
+                if SHOULD_USE_CHECKBOX_STYLE_TABLE:
+                    statusWidgetItem.setFlags(Qt.NoItemFlags)
+                    statusWidgetItem.setCheckState(Qt.Checked)
+            elif not item.checked and is_activated:
+                statusWidgetItem = QTableWidgetItem("CHECK ME!")
+                if SHOULD_USE_CHECKBOX_STYLE_TABLE:
+                    statusWidgetItem.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                    statusWidgetItem.setCheckState(Qt.Unchecked)
             else:
-                statusWidgetItem = QTableWidgetItem("pending")
+                statusWidgetItem = QTableWidgetItem("pending")                                
+                if SHOULD_USE_CHECKBOX_STYLE_TABLE:
+                    statusWidgetItem.setFlags(Qt.ItemIsEnabled)
+
+            statusWidgetItem.setTextAlignment(0x84)
 
             widgetItem_group = [rowNumberWidgetItem, aisleWidgetItem, nameWidgetItem, statusWidgetItem]
 
             # Associate data of activation state
-            if self.shopping_cart_location_aisle == item.aisle:
-                #print(f'aisle matches {self.shopping_cart_location_aisle}')
+            if is_activated:
                 for widgetItem in widgetItem_group:
                     widgetItem.setData(Table_Widget_Activation_RoleId, True)
 
@@ -172,7 +187,7 @@ class Panel2:
             self.tableWidget.setItem(rowId, 3, statusWidgetItem)
 
             rowId += 1
-    
+
     def tableWidgetItem_click(self, row, column):
         # print(f'item clicked {row} {column}')
 
@@ -218,6 +233,9 @@ class Panel2:
             return
         
         qimage = self.dc.get_last_captured_image()
+
+        if not qimage:
+            return
 
         # # Create a scene item and add it to scene
         scene_width, scene_height = (self.cameraGraphicsViewScene.width(), self.cameraGraphicsViewScene.height())

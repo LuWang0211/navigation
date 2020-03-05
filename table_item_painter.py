@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt, QSize, QPointF, QRect
 from PyQt5.QtGui import QPen, QBrush, QColor
 from PyQt5.QtWidgets import QApplication, QStyledItemDelegate, QStyle, QStyleOptionButton
+from config import SHOULD_USE_CHECKBOX_STYLE_TABLE
 
 Table_Widget_Activation_RoleId = 1000
 Table_Widget_CheckState_RoleId = 1001
@@ -15,6 +16,8 @@ class CustomTableItemPainter(QStyledItemDelegate):
 
         if should_be_activated == True and not is_checked:
             self.paint_activated_item(painter, option, index)
+        elif is_checked:
+            self.paint_crossed_out_item(painter, option, index)
         else:
             QStyledItemDelegate.paint(self, painter, option, index)
 
@@ -51,21 +54,45 @@ class CustomTableItemPainter(QStyledItemDelegate):
                 QPointF(x + hw, y + h - hw)
             )
 
-            opts = QStyleOptionButton()
-            spacing = 1
-            shrinked_rect = QRect(x + spacing, y + spacing, w - spacing - spacing, h - spacing - spacing)
-            opts.rect = shrinked_rect
-            opts.state = QStyle.State_Active | QStyle.State_Enabled
+            if not SHOULD_USE_CHECKBOX_STYLE_TABLE:
+                opts = QStyleOptionButton()
+                spacing = 1
+                shrinked_rect = QRect(x + spacing, y + spacing, w - spacing - spacing, h - spacing - spacing)
+                opts.rect = shrinked_rect
+                opts.state = QStyle.State_Active | QStyle.State_Enabled
 
-            QApplication.style().drawControl(QStyle.CE_PushButton, opts, painter)
+                QApplication.style().drawControl(QStyle.CE_PushButton, opts, painter)
 
-            overlayColor = QColor(color.red(), color.green(), color.blue(), 125)
-            painter.fillRect(shrinked_rect, overlayColor)
+                overlayColor = QColor(color.red(), color.green(), color.blue(), 125)
+                painter.fillRect(shrinked_rect, overlayColor)
 
-            painter.setPen(QPen(QBrush(Qt.black), 3))
-            painter.drawText(shrinked_rect, Qt.AlignCenter, 'Check!')
+                painter.setPen(QPen(QBrush(Qt.black), 3))
+                painter.drawText(shrinked_rect, Qt.AlignCenter, 'Check!')
         
         painter.setPen(original_pen)
 
         if column in (0, 1, 2):
             QStyledItemDelegate.paint(self, painter, option, index)
+
+        if SHOULD_USE_CHECKBOX_STYLE_TABLE and column == 3:
+            QStyledItemDelegate.paint(self, painter, option, index)
+
+    def paint_crossed_out_item(self, painter, option, index):
+        original_pen = painter.pen()
+
+        pen_width = 3
+        color = Qt.black
+        painter.setPen(QPen(QBrush(color), pen_width))
+
+        rect = option.rect
+        x, y, w, h = (rect.x(), rect.y(), rect.width(), rect.height())
+        hh = h // 2
+
+        painter.drawPolyline(
+            QPointF(x, y + hh), 
+            QPointF(x + w, y + hh)
+        )
+
+        painter.setPen(original_pen)
+        QStyledItemDelegate.paint(self, painter, option, index)
+
