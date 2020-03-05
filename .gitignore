@@ -1,1 +1,8 @@
 __pycache__
+*.py[cod]
+*$py.class
+*.zip
+models/
+*.pb
+*.weights
+other/
