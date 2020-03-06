@@ -1,6 +1,7 @@
 import os.path
 import csv
 from PyQt5 import uic, QtCore
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QComboBox, QPushButton, QListWidget, QListWidgetItem, QLabel
 import speech_recognition as sr
 
@@ -55,6 +56,13 @@ class Panel1:
 
         self.combobox.insertItems(0, item_names)
         self.current_selected_item_to_add = self.combobox.currentIndex()
+
+        model = self.combobox.model()
+
+        width = self.combobox.width()
+
+        for row in range(len(item_names)):
+            model.setData(model.index(row, 0), QSize(width, 50), Qt.SizeHintRole)
 
         self.updateShoppingListUI()
     
