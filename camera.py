@@ -16,7 +16,7 @@ seed()
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-east", "--east", type=str, required=True,
+ap.add_argument("-east", "--east", type=str, required=False,
 	help="path to input EAST text detector")
 ap.add_argument("-v", "--video", type=str,
 	help="path to optinal input video file")
@@ -103,7 +103,8 @@ class CameraCaptureThread(QThread):
         # load the pre-trained EAST text detector
         print("[INFO] loading EAST text detector...")
         print(args["east"], type(args["east"]))
-        net = cv2.dnn.readNet(args["east"])
+        # net = cv2.dnn.readNet(args["east"])
+        net = cv2.dnn.readNet(os.path.join(os.path.dirname(__file__), 'frozen_east_text_detection.pb'), "", "tensorflow")
 
         # initialize the original frame dimensions, new frame dimensions,
         # and ratio between the dimensions

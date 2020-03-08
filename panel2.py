@@ -8,7 +8,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetIte
      QGraphicsView, QGraphicsScene, QLabel, QGraphicsItem, QGraphicsPixmapItem, QStyledItemDelegate, \
      QPushButton, QGraphicsColorizeEffect, QStyle, QStyleOptionButton
 from table_item_painter import CustomTableItemPainter, Table_Widget_Activation_RoleId, Table_Widget_CheckState_RoleId
-from config import SHOULD_USE_CHECKBOX_STYLE_TABLE
+from config import SHOULD_USE_CHECKBOX_STYLE_TABLE, SHOULD_ANIMATE_MAP_ROUTE
+from animator import ShoppingRouteAnimator
 import cv2
 
 Form, Window = uic.loadUiType("panel2.ui")
@@ -35,6 +36,7 @@ class Panel2:
         self.shopping_cart_location_aisle = None        
         self.anchor_coordinates = {}
         self.aisle_anchor_map = {}
+        self.mapAnimator = None
         pass
 
     def getWidget(self):
@@ -95,6 +97,9 @@ class Panel2:
         self.mapGraphicsView.raise_()
 
         self.shopping_cart_location_aisle = 0
+
+        if SHOULD_ANIMATE_MAP_ROUTE:
+            self.mapAnimator = ShoppingRouteAnimator(self.mapGraphicsScene) 
         
     def updateUI(self):
         if not self.activated:
@@ -107,20 +112,10 @@ class Panel2:
 
         print("shopping route", route)
 
-        self.mapGraphicsScene.clear()
-
-        pen = QPen(Qt.red, 3)
-
-        if len(route) > 1:
-            start = route.pop(0)
-
-            while len(route) > 0:
-                next_ = route.pop(0)
-
-                [x1, y1] = self.anchor_coordinates[start]
-                [x2, y2] = self.anchor_coordinates[next_]
-                self.mapGraphicsScene.addLine( x1, y1, x2, y2, pen)
-                start = next_
+        if SHOULD_ANIMATE_MAP_ROUTE:
+            self.mapAnimator.start(self._convertRouteToCoordinates(route))
+        else:
+            self._draw_map_once(route)
 
         # display cart location
         self.update_cart_location()
@@ -281,3 +276,22 @@ class Panel2:
         qimage = QImage(image_array, shape[1], shape[0], QImage.Format_RGB32) 
 
         return QPixmap.fromImage(qimage)
+
+    def _draw_map_once(self, route):
+        self.mapGraphicsScene.clear()
+
+        pen = QPen(Qt.red, 3)
+
+        if len(route) > 1:
+            start = route.pop(0)
+
+            while len(route) > 0:
+                next_ = route.pop(0)
+
+                [x1, y1] = self.anchor_coordinates[start]
+                [x2, y2] = self.anchor_coordinates[next_]
+                self.mapGraphicsScene.addLine( x1, y1, x2, y2, pen)
+                start = next_
+
+    def _convertRouteToCoordinates(self, route):
+        return [self.anchor_coordinates[r] for r in route]
