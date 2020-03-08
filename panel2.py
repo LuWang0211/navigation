@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetIte
      QPushButton, QGraphicsColorizeEffect, QStyle, QStyleOptionButton
 from table_item_painter import CustomTableItemPainter, Table_Widget_Activation_RoleId, Table_Widget_CheckState_RoleId
 from config import SHOULD_USE_CHECKBOX_STYLE_TABLE
+import cv2
 
 Form, Window = uic.loadUiType("panel2.ui")
 

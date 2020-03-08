@@ -21,19 +21,29 @@ class ThreadWindow(Window):
     def __init__(self):
         super().__init__()
 
-    def setup(self, dc):
+    def setup(self, dc, locationService):
         self.dc = dc
+        self.locationService = locationService
         self.startVideo()
 
     @pyqtSlot(QImage)
     def setImage(self, image):
         self.dc.onImageCaptured(image)
+    
+    @pyqtSlot(int)
+    def setText(self, text):
+        self.locationService.onImageIdentified(text)
 
     def startVideo(self):
-        # th = Thread(self)
+
         th = CameraCaptureThread(self)
         th.changePixmap.connect(self.setImage)
+        th.changecartlocation.connect(self.setText)
         th.start()
+
+        # text = CameraCaptureThread(self)
+        # text.changecartlocation.connect(self.setText)
+        # text.start()
 
 window = ThreadWindow()
 
@@ -117,7 +127,7 @@ locationService.setup(panel2)
 rootUI = RootUI(window, panel1, panel2, dataContainer)
 rootUI.setup()
 
-window.setup(dataContainer)
+window.setup(dataContainer, locationService)
 
 window.show()
 app.exec_()

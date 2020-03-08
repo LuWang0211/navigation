@@ -104,14 +104,6 @@ class Panel1:
         r = sr.Recognizer()
         m = sr.Microphone()
 
-        # print(list(self.item_metadata.keys()))
-        # if 'eggs'.capitalize() in self.item_metadata.keys():
-        #     print('yes')
-        # if 'Eggs' in self.item_metadata.keys():
-        #     print('haha')
-
-        # while True:
-
         print("Say somethig!")
         with m as source:
             audio = r.listen(source)
