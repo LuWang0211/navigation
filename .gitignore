@@ -3,6 +3,6 @@ __pycache__
 *$py.class
 *.zip
 models/
-*.pb
+# *.pb
 *.weights
 other/
